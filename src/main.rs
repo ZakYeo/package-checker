@@ -30,11 +30,21 @@ fn main() {
     let contents = fs::read_to_string(file_location)
             .expect("Should have been able to read the file");
 
-    let parsed: Result<PackageJson, _> = serde_json::from_str(&contents);
-        match parsed {
-            Ok(pkg) => println!("Parsed package.json: {:?}", pkg),
-            Err(e) => println!("Failed to parse package.json: {}", e),
+    let parsed = match serde_json::from_str::<PackageJson>(&contents) {
+        Ok(pkg) => pkg,
+        Err(e) => {
+            eprintln!("Unable to parse package.json: {:?}", e);
+            return;
         }
+    };
 
+    let dependencies = match parsed.dependencies {
+        None => {
+            println!("No dependencies found in package.json");
+            HashMap::new() 
+        },
+        Some(deps) => deps,
+    };
 
+    println!("{:?}", dependencies);
 }
