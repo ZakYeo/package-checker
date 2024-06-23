@@ -46,14 +46,10 @@ impl PackageJsonHandler {
     }
 
     fn verify_api_key() -> bool{
-for (key, value) in env::vars() {
-        println!("{}: {}", key, value);
-    }
         match env::var("API_KEY" ){
             Ok(_) =>  true,
             Err(_) =>  false
         }
-
     }
 
     pub fn dependencies(&self) -> HashMap<String, String> {
