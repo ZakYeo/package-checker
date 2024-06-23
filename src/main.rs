@@ -46,6 +46,13 @@ impl PackageJsonHandler {
             Some(deps) => deps.clone(),
         }
     }
+
+    pub fn pretty_dependencies(&self) {
+        for (key, value) in self.dependencies().into_iter(){
+            println!("{}: {}", key, value)
+        }
+    }
+
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -61,5 +68,6 @@ fn main() {
 
     let pkg_handler = PackageJsonHandler::new(file_location.to_string());
 
-    println!("{:?}", pkg_handler.dependencies());
+    pkg_handler.pretty_dependencies();
+
 }
