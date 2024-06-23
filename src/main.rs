@@ -71,7 +71,7 @@ impl PackageJsonHandler {
         }
     }
 
-    async fn get_npm_package_info(&self, package_name: String) -> Result<NpmPackage, Error> {
+    async fn get_npm_package_info(&self, package_name: &String) -> Result<NpmPackage, Error> {
 
         let encoded_package_name = urlencoding::encode(&package_name);
 
@@ -84,25 +84,44 @@ impl PackageJsonHandler {
         Ok(package)
     }
 
+    async fn compare_latest_versions_for_dependencies(&self) {
+        for (key, value) in self.dependencies().into_iter(){
+            match self.get_npm_package_info(&key).await {
+                Ok(package) => {
+                    if let Some(latest_release_number) = &package.latest_release_number {
+                        println!("Package {}", &key);
+                        println!("Latest Release Number: {}. Your Version Number: {}", latest_release_number, value);
+                    }
+                },
+                Err(e) => println!("Error fetching package info: {:?}", e),
+            }
+        }
+    }
+
+
+
+
+
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Error> {
     let file_location = "./package.json"; 
 
 
     let pkg_handler = PackageJsonHandler::new(file_location.to_string());
     let package_name = "@notifee/react-native";
+    pkg_handler.compare_latest_versions_for_dependencies().await;
 
-    match pkg_handler.get_npm_package_info("@notifee/react-native".to_string()).await {
+    /*match pkg_handler.get_npm_package_info("@notifee/react-native".to_string()).await {
         Ok(package) => {
             println!("Package: {:?}", package);
         }
         Err(e) => {
             println!("Error fetching package info: {:?}", e);
         }
-    }
-
+    }*/
+    Ok(())
 }
 
 #[derive(Deserialize, Debug)]
