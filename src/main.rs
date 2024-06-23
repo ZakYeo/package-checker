@@ -1,6 +1,8 @@
 use std::fs;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::env;
+use dotenv::dotenv;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct PackageJson {
@@ -23,6 +25,12 @@ struct PackageJsonHandler {
 
 impl PackageJsonHandler {
     pub fn new(file_location: String) -> PackageJsonHandler {
+        dotenv().ok();
+        if !Self::verify_api_key(){
+            panic!("Please specify API_KEY in your environment variables")
+        }
+
+
         let contents = fs::read_to_string(file_location)
                 .expect("Should have been able to read the file");
 
@@ -35,6 +43,17 @@ impl PackageJsonHandler {
         PackageJsonHandler{
             parsed_package_json: parsed
         }
+    }
+
+    fn verify_api_key() -> bool{
+for (key, value) in env::vars() {
+        println!("{}: {}", key, value);
+    }
+        match env::var("API_KEY" ){
+            Ok(_) =>  true,
+            Err(_) =>  false
+        }
+
     }
 
     pub fn dependencies(&self) -> HashMap<String, String> {
